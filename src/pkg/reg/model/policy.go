@@ -14,7 +14,11 @@
 
 package model
 
-import "github.com/goharbor/harbor/src/lib/errors"
+import (
+	"strings"
+
+	"github.com/goharbor/harbor/src/lib/errors"
+)
 
 // const definition
 const (
@@ -22,6 +26,7 @@ const (
 	FilterTypeName     = "name"
 	FilterTypeTag      = "tag"
 	FilterTypeLabel    = "label"
+	FilterTypePlatform = "platform"
 
 	TriggerTypeManual     = "manual"
 	TriggerTypeScheduled  = "scheduled"
@@ -42,7 +47,7 @@ type Filter struct {
 
 func (f *Filter) Validate() error {
 	switch f.Type {
-	case FilterTypeResource, FilterTypeName, FilterTypeTag:
+	case FilterTypeResource, FilterTypeName, FilterTypeTag, FilterTypePlatform:
 		value, ok := f.Value.(string)
 		if !ok {
 			return errors.New(nil).WithCode(errors.BadRequestCode).
@@ -55,7 +60,15 @@ func (f *Filter) Validate() error {
 					WithMessagef("invalid resource filter: %s", value)
 			}
 		}
-		if f.Type == FilterTypeName || f.Type == FilterTypeResource {
+		if f.Type == FilterTypePlatform {
+			// must be in format "os/arch" or "os/arch/variant"
+			parts := strings.Split(value, "/")
+			if len(parts) < 2 || len(parts) > 3 {
+				return errors.New(nil).WithCode(errors.BadRequestCode).
+					WithMessagef("invalid platform filter: %s", value)
+			}
+		}
+		if f.Type == FilterTypeName || f.Type == FilterTypeResource || f.Type == FilterTypePlatform {
 			if f.Decoration != "" {
 				return errors.New(nil).WithCode(errors.BadRequestCode).
 					WithMessage("only tag and label filter support decoration")

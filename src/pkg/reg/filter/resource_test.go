@@ -161,3 +161,64 @@ func TestArtifactLabelFilters(t *testing.T) {
 	require.EqualValues(t, "ddddd", arts[1].Digest)
 	require.Nil(t, arts[1].Labels)
 }
+
+func TestArtifactPlatformFilters(t *testing.T) {
+	var artifacts = []*model.Artifact{
+		{
+			Type:   model.ResourceTypeArtifact,
+			Digest: "aaaaa",
+			ExtraAttrs: map[string]any{
+				"platform": "linux/amd64",
+			},
+		},
+		{
+			Type:   model.ResourceTypeArtifact,
+			Digest: "bbbbb",
+			ExtraAttrs: map[string]any{
+				"platform": "linux/arm64",
+			},
+		},
+		{
+			Type:   model.ResourceTypeArtifact,
+			Digest: "ccccc",
+			ExtraAttrs: map[string]any{
+				"platform": "windows/amd64",
+			},
+		},
+		{
+			Type:   model.ResourceTypeArtifact,
+			Digest: "ddddd",
+		},
+	}
+
+	var filters = []*model.Filter{
+		{
+			Type:  model.FilterTypePlatform,
+			Value: "linux/amd64",
+		},
+	}
+
+	artFilters, err := BuildArtifactFilters(filters)
+	require.Nil(t, err)
+
+	arts, err := artFilters.Filter(artifacts)
+	require.Nil(t, err)
+	require.Equal(t, 1, len(arts))
+	require.EqualValues(t, "aaaaa", arts[0].Digest)
+
+	filters = []*model.Filter{
+		{
+			Type:  model.FilterTypePlatform,
+			Value: "linux",
+		},
+	}
+
+	artFilters, err = BuildArtifactFilters(filters)
+	require.Nil(t, err)
+
+	arts, err = artFilters.Filter(artifacts)
+	require.Nil(t, err)
+	require.Equal(t, 2, len(arts))
+	require.EqualValues(t, "aaaaa", arts[0].Digest)
+	require.EqualValues(t, "bbbbb", arts[1].Digest)
+}

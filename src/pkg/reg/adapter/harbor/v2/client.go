@@ -66,8 +66,9 @@ func (c *client) listArtifacts(repo string) ([]*model.Artifact, error) {
 
 	for _, artItem := range artifacts {
 		art := &model.Artifact{
-			Type:   artItem.Type,
-			Digest: artItem.Digest,
+			Type:       artItem.Type,
+			Digest:     artItem.Digest,
+			ExtraAttrs: artItem.ExtraAttrs,
 		}
 		for _, label := range artItem.Labels {
 			art.Labels = append(art.Labels, label.Name)

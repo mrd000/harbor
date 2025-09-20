@@ -46,6 +46,10 @@ func BuildArtifactFilters(filters []*model.Filter) (ArtifactFilters, error) {
 				pattern:    filter.Value.(string),
 				decoration: filter.Decoration,
 			}
+		case model.FilterTypePlatform:
+			f = &artifactPlatformFilter{
+				platform: filter.Value.(string),
+			}
 		}
 		if f != nil {
 			fs = append(fs, f)
@@ -88,6 +92,28 @@ func (a *artifactTypeFilter) Filter(artifacts []*model.Artifact) ([]*model.Artif
 			if strings.EqualFold(strings.ToLower(artifact.Type), strings.ToLower(t)) {
 				result = append(result, artifact)
 				continue
+			}
+		}
+	}
+	return result, nil
+}
+
+type artifactPlatformFilter struct {
+	platform string
+}
+
+func (a *artifactPlatformFilter) Filter(artifacts []*model.Artifact) ([]*model.Artifact, error) {
+	if len(a.platform) == 0 {
+		return artifacts, nil
+	}
+	var result []*model.Artifact
+	for _, artifact := range artifacts {
+		if artifact.ExtraAttrs == nil {
+			continue
+		}
+		if platform, ok := artifact.ExtraAttrs["platform"].(string); ok {
+			if strings.HasPrefix(platform, a.platform) {
+				result = append(result, artifact)
 			}
 		}
 	}

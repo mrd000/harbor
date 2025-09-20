@@ -349,6 +349,30 @@
                                 ">
                                 <span>{{ supportedFilters[i]?.values }}</span>
                             </div>
+                            <div *ngIf="supportedFilters[i]?.type === 'platform'" class="flex">
+                                <div class="clr-input-wrapper">
+                                    <input
+                                        class="clr-input"
+                                        autocomplete="off"
+                                        [ngClass]="{
+                                            'width-name-resource':
+                                                supportedFilters[i]?.type !==
+                                                'tag',
+                                            'width-tag-label':
+                                                supportedFilters[i]?.type ===
+                                                'tag'
+                                        }"
+                                        (input)="trimText($event)"
+                                        type="text"
+                                        #filterValue
+                                        size="14"
+                                        formControlName="value"
+                                        id="{{
+                                            'filter_' +
+                                                supportedFilters[i]?.type
+                                        }}" />
+                                </div>
+                            </div>
                             <clr-tooltip>
                                 <clr-icon
                                     clrTooltipTrigger
@@ -395,6 +419,16 @@
                                         >{{
                                             'TOOLTIP.RESOURCE_FILTER'
                                                 | translate
+                                        }}</span
+                                    >
+                                    <span
+                                        class="tooltip-content"
+                                        *ngIf="
+                                            supportedFilters[i]?.type ===
+                                            'platform'
+                                        "
+                                        >{{
+                                            'TOOLTIP.PLATFORM_FILTER' | translate
                                         }}</span
                                     >
                                 </clr-tooltip-content>

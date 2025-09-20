@@ -288,7 +288,7 @@ func parseFilters(str string) ([]*model.Filter, error) {
 
 		// convert the type of value from string to model.ResourceType if the filter
 		// is a resource type filter
-		if filter.Type == model.FilterTypeResource {
+		if filter.Type == model.FilterTypeResource || filter.Type == model.FilterTypePlatform {
 			filter.Value = filter.Value.(string)
 		}
 		if filter.Type == model.FilterTypeLabel {
